@@ -23,7 +23,8 @@ redc: context [
 
 	Windows?:  system/version/4 = 3
 	load-lib?: any [encap? find system/components 'Library]
-	
+print ["load-lib?:" mold type? load-lib?]
+?? encap?
 	if encap? [
 		temp-dir: switch/default system/version/4 [
 			2 [											;-- MacOS X
@@ -191,14 +192,17 @@ redc: context [
 			system/version/4 = 2 [%.dylib]
 			'else 				 [%.so]
 		]
-		
+?? filename
+?? encap?
 		if any [
 			not exists? filename
 			all [
 				not encap?
-				(modified? filename) < modified? src
+				probe (probe modified? filename) < probe modified? src
 			]
 		][
+?? crush-lib
+probe what-dir
 			if crush-lib [
 				free crush-lib
 				crush-lib: none
@@ -217,7 +221,7 @@ redc: context [
 			opts: make opts select load-targets opts/config-name
 			opts/type: 'dll
 			if opts/OS <> 'Windows [opts/PIC?: yes]
-			
+?? opts			
 			print "Pre-compiling compression library..."
 			unless encap? [
 				change-dir %system/
@@ -227,8 +231,11 @@ redc: context [
 			delete script
 			unless encap? [change-dir %../]
 		]
-		
+probe what-dir
+?? crush-lib
 		unless crush-lib [
+?? filename
+probe exists? filename
 			crush-lib: load/library filename
 			crush-compress: make routine! [
 				in		[binary!]
